@@ -19,41 +19,61 @@ nodes:
         - label: Polygon ECNG
           url: http://144.76.18.142:36360
           public: false
-          proxy_enable: yes
-          ws_support: yes
+          proxy_enabled: true
+          ws_support: true
         - label: Polygon ECNG2
           url: http://65.108.201.189:36360
           public: false
+          proxy_enabled: true
+          ws_support: true
         - label: Polygon ECNG Traefik
           url: http://polygon-node.internal-fun-chegonibudj.com
           public: false
+          proxy_enabled: true
+          ws_support: true
         - label: Polygon RPC
           url: https://polygon-rpc.com
           public: true
+          proxy_enabled: false
+          ws_support: false
         - label: Polygon Infura
           url: https://polygon-mainnet.infura.io/v3/e444d8655de54657b719e041d951aac7
           public: true
+          proxy_enabled: false
+          ws_support: false
     binance:
         - label: Binance ECNG
           url: http://65.108.201.189:8545
           public: false
+          proxy_enabled: true
+          ws_support: true
         - label: Binance
           url: https://bsc-dataseed.binance.org
           public: true
+          proxy_enabled: false
+          ws_support: false
     cronos:
         - label: Cronos ECNG
           url: http://142.132.130.196:26659
           public: false
+          proxy_enabled: true
+          ws_support: true
         - label: Cronos
           url: https://evm.cronos.org
           public: true
+          proxy_enabled: false
+          ws_support: false
     avalanche:
         - label: Avalanche ECNG
           url: http://api.axelar-node.internal-fun-chegonibudj.com:9650/ext/bc/C/rpc
           public: false
+          proxy_enabled: true
+          ws_support: true
         - label: Avalanche
           url: https://api.avax.network/ext/bc/C/rpc
           public: true
+          proxy_enabled: false
+          ws_support: false
 
 
 

@@ -23,10 +23,11 @@ type Domains struct {
 }
 
 type Node struct {
-	Name     string `yaml:"label"`
-	Url      string `yaml:"url"`
-	Public   bool   `yaml:"public"`
-	RouteUrl string `yaml:"route_url"`
+	Name         string `yaml:"label"`
+	Url          string `yaml:"url"`
+	Public       bool   `yaml:"public"`
+	ProxyEnabled bool   `yaml:"proxy_enabled"`
+	WsSupport    bool   `yaml:"ws_support"`
 }
 
 func GetServerConfig() Config {
