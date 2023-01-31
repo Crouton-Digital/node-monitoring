@@ -13,7 +13,7 @@ RUN git config --global user.name "Google Cloud Build"
 RUN git config --global url."git@bitbucket.org:am-bitbucket".insteadOf "https://bitbucket.org/am-bitbucket"
 RUN go env -w GOPRIVATE=bitbucket.org/am-bitbucket
 
-COPY ./ssh /root/.ssh
+#COPY ./ssh /root/.ssh
 
 #RUN go mod init node-balancer
 RUN go mod tidy
@@ -23,14 +23,14 @@ RUN go build -o /main ./app/main.go
 ## Deploy
 ##
 
-FROM alpine:latest AS deploy
+FROM golang:1.19.0 AS deploy
 
 WORKDIR /
 
 RUN mkdir /app
 
 COPY --from=build /main /app/main
-COPY --from=build /opt/backend/config /app/config
+#COPY --from=build /opt/backend/config /app/config
 
 #EXPOSE 8080
 #EXPOSE 9090
