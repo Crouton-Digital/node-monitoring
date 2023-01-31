@@ -1,11 +1,11 @@
 package metrics
 
 import (
-	"crypto-exporter/internal/server/config"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
+	"node-balancer/internal/server/config"
 )
 
 //func recordMetrics() {

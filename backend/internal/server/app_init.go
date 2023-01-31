@@ -1,10 +1,10 @@
 package server
 
 import (
-	"crypto-exporter/internal/metrics"
-	"crypto-exporter/internal/nodemonitoring"
-	"crypto-exporter/internal/server/config"
 	"github.com/sirupsen/logrus"
+	"node-balancer/internal/metrics"
+	"node-balancer/internal/nodemonitoring"
+	"node-balancer/internal/server/config"
 )
 
 func RunServer() {

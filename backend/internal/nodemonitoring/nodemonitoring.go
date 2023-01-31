@@ -2,12 +2,12 @@ package nodemonitoring
 
 import (
 	"context"
-	"crypto-exporter/internal/metrics"
-	"crypto-exporter/internal/server/config"
 	"fmt"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/sirupsen/logrus"
 	"math/big"
+	"node-balancer/internal/metrics"
+	"node-balancer/internal/server/config"
 	"os"
 	"strconv"
 	"text/tabwriter"

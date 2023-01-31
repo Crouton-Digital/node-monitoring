@@ -1,7 +1,7 @@
 package main
 
 import (
-	"crypto-exporter/internal/server"
+	"node-balancer/internal/server"
 )
 
 func main() {

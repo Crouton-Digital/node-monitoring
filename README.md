@@ -2,6 +2,15 @@
 
 This README would normally document whatever steps are necessary to get your application up and running.
 
+### RUN PROJECT 
+
+```sh
+cd backend 
+go mod init node-balancer
+go mod tidy
+```
+
+
 ### What is this repository for? ###
 
 * Quick summary
