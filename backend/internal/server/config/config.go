@@ -11,6 +11,8 @@ type Config struct {
 	RpcConfig map[string][]Node `yaml:"nodes"`
 }
 
+//type Server
+
 type Node struct {
 	Name   string `yaml:"label"`
 	Type   string
