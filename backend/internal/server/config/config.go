@@ -23,6 +23,11 @@ type Node struct {
 func GetServerConfig() Config {
 
 	env := os.Getenv("ENV")
+
+	if env == "" {
+		env = "local"
+	}
+
 	data, err := os.ReadFile("config/" + env + ".yml")
 	if err != nil {
 		logrus.Errorf("Failed to read config: %v", err)
