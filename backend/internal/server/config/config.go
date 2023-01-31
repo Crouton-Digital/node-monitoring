@@ -4,20 +4,29 @@ import (
 	"github.com/sirupsen/logrus"
 	yaml3 "gopkg.in/yaml.v3"
 	"os"
-	"reflect"
 )
 
 type Config struct {
-	RpcConfig map[string][]Node `yaml:"nodes"`
+	ServerConfig  Server             `yaml:"server"`
+	DomainsConfig map[string]Domains `yaml:"domains"`
+	RpcConfig     map[string][]Node  `yaml:"nodes"`
 }
 
-//type Server
+type Server struct {
+	HttpPort    string `yaml:"http_port"`
+	MetricsPort string `yaml:"metrics_port"`
+	DebugLevel  string `yaml:"debug"`
+}
+
+type Domains struct {
+	Url string `yaml:"url"`
+}
 
 type Node struct {
-	Name   string `yaml:"label"`
-	Type   string
-	Url    string `yaml:"url"`
-	Public bool   `yaml:"public"`
+	Name     string `yaml:"label"`
+	Url      string `yaml:"url"`
+	Public   bool   `yaml:"public"`
+	RouteUrl string `yaml:"route_url"`
 }
 
 func GetServerConfig() Config {
@@ -40,12 +49,12 @@ func GetServerConfig() Config {
 		os.Exit(1)
 	}
 
-	config_group := reflect.ValueOf(config.RpcConfig).MapKeys()
-	//logrus.Println(config.RpcConfig["polygon"][0].Name)
-	for _, s := range config_group {
-		for i, v := range config.RpcConfig[s.String()] {
-			config.RpcConfig[s.String()][i].Type = s.String()
-			logrus.Infof("%v | %v %v Public: %v", v.Type, v.Name, v.Url, v.Public)
+	logrus.Info(config.DomainsConfig)
+	for key, network_nodes := range config.RpcConfig {
+		logrus.Infof("======== %v ========", key)
+		for _, network_node := range network_nodes {
+			logrus.Infof("%v", config.DomainsConfig[key].Url)
+			logrus.Infof("%v | %v %v Public: %v", key, network_node.Name, network_node.Url, network_node.Public)
 		}
 	}
 

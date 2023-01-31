@@ -1,6 +1,18 @@
 
 server:
-    promet
+    debug: DEBUG
+    http_port: 8080
+    metrics_port: 8082
+
+domains:
+    polygon:
+        url: polygon-nodes.dex-arbitrage.svc.cluster.local
+    binance:
+        url: binance-nodes.dex-arbitrage.svc.cluster.local
+    cronos:
+        url: cronos-nodes.dex-arbitrage.svc.cluster.local
+    avalanche:
+        url: cronos-nodes.dex-arbitrage.svc.cluster.local
 
 nodes:
     polygon:

@@ -9,9 +9,10 @@ import (
 
 func RunServer() {
 
-	logrus.Info("START APP ")
 	config := config.GetServerConfig()
-
+	logrus.Info("START APP ")
+	//logrus.SetFormatter(&logrus.JSONFormatter{})
+	//logrus.SetLevel(logrus.DebugLevel)
 	go nodemonitoring.Run(config)
 	metrics.Run(config)
 

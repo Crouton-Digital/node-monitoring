@@ -23,5 +23,5 @@ var (
 func Run(config config.Config) {
 
 	http.Handle("/metrics", promhttp.Handler())
-	http.ListenAndServe(":2112", nil)
+	http.ListenAndServe(":"+config.ServerConfig.MetricsPort, nil)
 }
