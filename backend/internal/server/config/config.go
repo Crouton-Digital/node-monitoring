@@ -1,15 +1,16 @@
 package config
 
 import (
+	"os"
+
 	"github.com/sirupsen/logrus"
 	yaml3 "gopkg.in/yaml.v3"
-	"os"
 )
 
-type Config struct {
+type AppConfig struct {
 	ServerConfig  Server             `yaml:"server"`
 	DomainsConfig map[string]Domains `yaml:"domains"`
-	RpcConfig     map[string][]Node  `yaml:"nodes"`
+	Nodes         map[string][]Node  `yaml:"nodes"`
 }
 
 type Server struct {
@@ -29,7 +30,11 @@ type Node struct {
 	WsSupport    bool   `yaml:"ws_support"`
 }
 
-func GetServerConfig() Config {
+var (
+	Config AppConfig
+)
+
+func LoadServerConfig() {
 
 	env := os.Getenv("ENV")
 
@@ -42,21 +47,18 @@ func GetServerConfig() Config {
 		logrus.Errorf("Failed to read config: %v", err)
 		os.Exit(1)
 	}
-	var config Config
-	err = yaml3.Unmarshal(data, &config)
+	err = yaml3.Unmarshal(data, &Config)
 	if err != nil {
 		logrus.Errorf("Failed to parse config: %v", err)
 		os.Exit(1)
 	}
 
-	logrus.Info(config.DomainsConfig)
-	for key, network_nodes := range config.RpcConfig {
+	logrus.Info(Config.DomainsConfig)
+	for key, network_nodes := range Config.Nodes {
 		logrus.Infof("======== %v ========", key)
 		for _, network_node := range network_nodes {
-			logrus.Infof("%v", config.DomainsConfig[key].Url)
+			logrus.Infof("%v", Config.DomainsConfig[key].Url)
 			logrus.Infof("%v | %v %v Public: %v", key, network_node.Name, network_node.Url, network_node.Public)
 		}
 	}
-
-	return config
 }

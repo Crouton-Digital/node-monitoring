@@ -12,22 +12,22 @@ import (
 )
 
 func RunServer() {
-	config := config.GetServerConfig()
+	config.LoadServerConfig()
 	logrus.Info("START APP ")
 	//logrus.SetFormatter(&logrus.JSONFormatter{})
 	//logrus.SetLevel(logrus.DebugLevel)
-	go nodemonitoring.Run(config)
-	StartRouter(config)
+	go nodemonitoring.Run()
+	StartRouter()
 }
 
-func StartRouter(config config.Config) {
+func StartRouter() {
 	http.Handle("/metrics", promhttp.Handler())
 	http.Handle("/health", http.HandlerFunc(handleHealthRequest))
 	http.Handle("/traefik-route.cfg", http.HandlerFunc(trafik_config.HandleConfig))
 
-	logrus.Infof("Serving HTTP on port %v", config.ServerConfig.HttpPort)
+	logrus.Infof("Serving HTTP on port %v", config.Config.ServerConfig.HttpPort)
 
-	http.ListenAndServe(":"+config.ServerConfig.HttpPort, nil)
+	http.ListenAndServe(":"+config.Config.ServerConfig.HttpPort, nil)
 }
 
 func handleHealthRequest(w http.ResponseWriter, r *http.Request) {

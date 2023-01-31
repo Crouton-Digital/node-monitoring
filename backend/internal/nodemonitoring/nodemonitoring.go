@@ -3,8 +3,6 @@ package nodemonitoring
 import (
 	"context"
 	"fmt"
-	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/sirupsen/logrus"
 	"math/big"
 	"node-balancer/internal/metrics"
 	"node-balancer/internal/server/config"
@@ -12,12 +10,15 @@ import (
 	"strconv"
 	"text/tabwriter"
 	"time"
+
+	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/sirupsen/logrus"
 )
 
-func Run(config config.Config) {
+func Run() {
 
 	for range time.Tick(time.Millisecond * 2000) {
-		for _, s := range config.RpcConfig {
+		for _, s := range config.Config.Nodes {
 			for _, v := range s {
 				go printBlockNumber(v)
 			}
