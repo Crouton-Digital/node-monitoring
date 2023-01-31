@@ -8,16 +8,6 @@ import (
 	"node-balancer/internal/server/config"
 )
 
-//func recordMetrics() {
-//	go func() {
-//		for {
-//			opsProcessed.Add(1)
-//			opsCpuUsage.Set(1)
-//			time.Sleep(2 * time.Second)
-//		}
-//	}()
-//}
-
 var (
 	OpsProcessed = promauto.NewCounter(prometheus.CounterOpts{
 		Name: "myapp_processed_ops_total",
@@ -31,8 +21,6 @@ var (
 )
 
 func Run(config config.Config) {
-	//recordMetrics()
-	//prometheus.MustRegister(OpsBlockHight)
 
 	http.Handle("/metrics", promhttp.Handler())
 	http.ListenAndServe(":2112", nil)
