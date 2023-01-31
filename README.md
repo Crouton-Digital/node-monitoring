@@ -9,11 +9,15 @@ This project for monitoing EVM nodes and provide configs for traefik http router
 
 ### RUN PROJECT 
 
+first init project run: 
 ```sh
 cd backend 
 go mod init node-balancer
 go mod tidy
+```
 
+run app: 
+```sh
 go run app/main.go
 ```
 
