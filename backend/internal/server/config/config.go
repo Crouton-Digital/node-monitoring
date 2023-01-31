@@ -13,9 +13,8 @@ type Config struct {
 }
 
 type Server struct {
-	HttpPort    string `yaml:"http_port"`
-	MetricsPort string `yaml:"metrics_port"`
-	DebugLevel  string `yaml:"debug"`
+	HttpPort   string `yaml:"http_port"`
+	DebugLevel string `yaml:"debug"`
 }
 
 type Domains struct {
