@@ -1,23 +1,17 @@
-# node-balancer #
+# node-balancer
 
-This project for monitoing EVM nodes and provide configs for traefik http router. 
+This project for monitoing EVM nodes and provide configs for traefik http router.
 
-1. route ws, http trafik between some nodes 
-2. monitoring EVM nodes and turn on or turn off from routing 
-3. collect and share prometheus metrics 
+1. route ws, http trafik between some nodes
+2. monitoring EVM nodes and turn on or turn off from routing
+3. collect and share prometheus metrics
 
 
-### RUN PROJECT 
+### RUN PROJECT
 
-first init project: 
+run app:
 ```sh
-cd backend 
-go mod init node-balancer
-go mod tidy
-```
-
-run app: 
-```sh
+cd backend
 go run app/main.go
 ```
 
@@ -65,7 +59,7 @@ nodes:
           ws_support: false
 ```
 
-app will be generate configuration for traefik and share use http protocol (example): 
+app will be generate configuration for traefik and share use http protocol (example):
 
 ```yaml
 http:
@@ -109,6 +103,6 @@ http:
         passHostHeader: true
 ```
 
-### How to analyze EVN nodes?  
+### How to analyze EVN nodes?
 
-### List supported prometheus metrics 
+### List supported prometheus metrics
