@@ -25,9 +25,8 @@ RUN go build -o /main ./app/main.go
 
 FROM golang:1.19.0 AS deploy
 
-WORKDIR /
-
 RUN mkdir /app
+WORKDIR /app
 
 COPY --from=build /main /app/main
 #COPY --from=build /opt/backend/config /app/config
