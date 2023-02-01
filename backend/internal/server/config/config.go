@@ -26,7 +26,7 @@ type Node struct {
 	Name         string `yaml:"label"`
 	Url          string `yaml:"url"`
 	Public       bool   `yaml:"public"`
-	ProxyEnabled bool   `yaml:"proxy_enabled"`
+	AllowRouting bool   `yaml:"allow_routing"`
 	WsSupport    bool   `yaml:"ws_support"`
 }
 
