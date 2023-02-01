@@ -18,8 +18,9 @@ import (
 func Run() {
 
 	for range time.Tick(time.Millisecond * 2000) {
-		for _, s := range config.Config.Nodes {
-			for _, v := range s {
+		for _, s := range config.Config.NetworksConfig {
+			for _, v := range s.Nodes {
+				logrus.Info(v)
 				go printBlockNumber(v)
 			}
 		}

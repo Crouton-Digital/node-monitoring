@@ -8,9 +8,8 @@ import (
 )
 
 type AppConfig struct {
-	ServerConfig  Server             `yaml:"server"`
-	DomainsConfig map[string]Domains `yaml:"domains"`
-	Nodes         map[string][]Node  `yaml:"nodes"`
+	ServerConfig   Server             `yaml:"server"`
+	NetworksConfig map[string]Network `yaml:"networks"`
 }
 
 type Server struct {
@@ -18,8 +17,11 @@ type Server struct {
 	DebugLevel string `yaml:"debug"`
 }
 
-type Domains struct {
-	Url string `yaml:"url"`
+type Network struct {
+	Domain        string `yaml:"domain"`
+	MaxBlockDelay string `yaml:"max_block_delay"`
+	MaxTimeDelay  string `yaml:"max_time_delay"`
+	Nodes         []Node `yaml:"nodes"`
 }
 
 type Node struct {
@@ -53,11 +55,10 @@ func LoadServerConfig() {
 		os.Exit(1)
 	}
 
-	logrus.Info(Config.DomainsConfig)
-	for key, network_nodes := range Config.Nodes {
+	//logrus.Info(Config)
+	for key, network_nodes := range Config.NetworksConfig {
 		logrus.Infof("======== %v ========", key)
-		for _, network_node := range network_nodes {
-			logrus.Infof("%v", Config.DomainsConfig[key].Url)
+		for _, network_node := range network_nodes.Nodes {
 			logrus.Infof("%v | %v %v Public: %v", key, network_node.Name, network_node.Url, network_node.Public)
 		}
 	}

@@ -3,18 +3,12 @@ server:
     debug: DEBUG
     http_port: 8080
 
-domains:
-    polygon:
-        url: polygon-nodes.dex-arbitrage.svc.cluster.local
-    binance:
-        url: binance-nodes.dex-arbitrage.svc.cluster.local
-    cronos:
-        url: cronos-nodes.dex-arbitrage.svc.cluster.local
-    avalanche:
-        url: cronos-nodes.dex-arbitrage.svc.cluster.local
-
-nodes:
-    polygon:
+networks:
+  polygon:
+    domain: "polygon-nodes.dex-arbitrage.svc.cluster.local"
+    max_block_delay: 10
+    max_time_delay: 60
+    nodes:
         - label: Polygon ECNG
           url: http://144.76.18.142:36360
           public: false
@@ -40,7 +34,11 @@ nodes:
           public: true
           allow_routing: false
           ws_support: false
-    binance:
+  binance:
+    domain: "binance-nodes.dex-arbitrage.svc.cluster.local"
+    max_block_delay: 10
+    max_time_delay: 60
+    nodes:
         - label: Binance ECNG
           url: http://65.108.201.189:8545
           public: false
@@ -51,7 +49,11 @@ nodes:
           public: true
           allow_routing: false
           ws_support: false
-    cronos:
+  cronos:
+    domain: "cronos-nodes.dex-arbitrage.svc.cluster.local"
+    max_block_delay: 10
+    max_time_delay: 60
+    nodes:
         - label: Cronos ECNG
           url: http://142.132.130.196:26659
           public: false
@@ -62,7 +64,11 @@ nodes:
           public: true
           allow_routing: false
           ws_support: false
-    avalanche:
+  avalanche:
+    domain: "avalanche-nodes.dex-arbitrage.svc.cluster.local"
+    max_block_delay: 10
+    max_time_delay: 60
+    nodes:
         - label: Avalanche ECNG
           url: http://api.axelar-node.internal-fun-chegonibudj.com:9650/ext/bc/C/rpc
           public: false
