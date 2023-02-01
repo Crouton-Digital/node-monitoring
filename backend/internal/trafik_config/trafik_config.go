@@ -50,23 +50,23 @@ func GenerateConfig() TrafikConfig {
 		Services: map[string]Service{},
 	}}
 
-	for network, domain := range config.Config.DomainsConfig {
+	for network, netConfig := range config.Config.NetworksConfig {
 		tfConfig.HTTP.Routers[network+"_node"] = Router{
 			EntryPoints: []string{"web"},
 			Service:     network + "_node",
-			Rule:        "Host(`" + domain.Url + "`)",
+			Rule:        "Host(`" + netConfig.Domain + "`)",
 		}
 		tfConfig.HTTP.Routers[network+"_node_ws"] = Router{
 			EntryPoints: []string{"ws"},
 			Service:     network + "_node_ws",
-			Rule:        "Host(`" + domain.Url + "`)",
+			Rule:        "Host(`" + netConfig.Domain + "`)",
 		}
 	}
 
-	for network, nodes := range config.Config.Nodes {
+	for network, netConfig := range config.Config.NetworksConfig {
 		httpServers := []Server{}
 		wsServers := []Server{}
-		for _, node := range nodes {
+		for _, node := range netConfig.Nodes {
 			ok := true
 			if node.AllowRouting && ok {
 				httpServers = append(httpServers, Server{URL: node.Url})
