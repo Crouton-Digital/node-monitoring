@@ -14,9 +14,9 @@ networks:
     nodes:
         - label: Polygon ECNG
           url: http://144.76.18.142:36360
+          ws_url: http://65.108.201.189:36361
           public: false
           allow_routing: true
-          ws_support: true
         - label: Polygon ECNG2
           url: http://65.108.201.189:36360
           ws_url: http://65.108.201.189:36361
