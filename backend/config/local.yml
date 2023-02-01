@@ -22,7 +22,6 @@ networks:
           ws_url: http://65.108.201.189:36361
           public: false
           allow_routing: true
-          ws_support: true
         - label: Polygon ECNG Traefik
           url: http://polygon-node.internal-fun-chegonibudj.com
           ws_url: http://polygon-node.internal-fun-chegonibudj.com:81
