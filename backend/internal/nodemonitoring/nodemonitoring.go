@@ -8,11 +8,19 @@ import (
 	"node-balancer/internal/server/config"
 	"os"
 	"strconv"
+	"sync"
 	"text/tabwriter"
 	"time"
 
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/exp/slices"
+)
+
+var (
+	// stores indexes, e.g. for polygon enabled nodes are #0 and #3
+	enabledNodes = map[string][]int{}
+	mu           = sync.RWMutex{}
 )
 
 func Run() {
@@ -27,6 +35,40 @@ func Run() {
 		fmt.Println("\n---")
 	}
 
+}
+
+func IsEnabled(network string, index int) bool {
+	enabled := EnabledNodes(network)
+	return slices.Contains(enabled, index)
+}
+
+func EnabledNodes(network string) []int {
+	mu.RLock()
+	defer mu.RUnlock()
+	return enabledNodes[network]
+}
+
+func setEnabledNodes(network string, nodeIndexes []int) {
+	mu.Lock()
+	defer mu.Unlock()
+	enabledNodes[network] = nodeIndexes
+}
+
+func monitorNetworks() {
+	for network := range config.Config.NetworksConfig {
+		go monitorNetwork(network)
+	}
+}
+func monitorNetwork(network string) {
+	// netConfig := config.Config.NetworksConfig[network]
+	// netEnabledNodes := []int{}
+	// for i, node := range netConfig.Nodes {
+	// 	err, getLastBlock, getLastBlockTime := getLastKnowBlock(node)
+	// 	if err != nil {
+	// 		// Ignore node completely
+	// 		continue
+	// 	}
+	// }
 }
 
 func printBlockNumber(s config.Node) {
