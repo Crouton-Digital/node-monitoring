@@ -6,8 +6,11 @@ server:
 networks:
   polygon:
     domain: "polygon-nodes.dex-arbitrage.svc.cluster.local"
-    max_block_delay: 10
-    max_time_delay: 60
+    rules:
+      max_block_delay: 10
+      max_time_delay: 60
+      routing_nodes_min: 1
+      routing_nodes_max: 5
     nodes:
         - label: Polygon ECNG
           url: http://144.76.18.142:36360
@@ -36,8 +39,11 @@ networks:
           ws_support: false
   binance:
     domain: "binance-nodes.dex-arbitrage.svc.cluster.local"
-    max_block_delay: 10
-    max_time_delay: 60
+    rules:
+      max_block_delay: 10
+      max_time_delay: 60
+      routing_nodes_min: 1
+      routing_nodes_max: 5
     nodes:
         - label: Binance ECNG
           url: http://65.108.201.189:8545
@@ -51,8 +57,11 @@ networks:
           ws_support: false
   cronos:
     domain: "cronos-nodes.dex-arbitrage.svc.cluster.local"
-    max_block_delay: 10
-    max_time_delay: 60
+    rules:
+      max_block_delay: 10
+      max_time_delay: 60
+      routing_nodes_min: 1
+      routing_nodes_max: 5
     nodes:
         - label: Cronos ECNG
           url: http://142.132.130.196:26659
@@ -66,8 +75,11 @@ networks:
           ws_support: false
   avalanche:
     domain: "avalanche-nodes.dex-arbitrage.svc.cluster.local"
-    max_block_delay: 10
-    max_time_delay: 60
+    rules:
+      max_block_delay: 10
+      max_time_delay: 60
+      routing_nodes_min: 1
+      routing_nodes_max: 5
     nodes:
         - label: Avalanche ECNG
           url: http://api.axelar-node.internal-fun-chegonibudj.com:9650/ext/bc/C/rpc

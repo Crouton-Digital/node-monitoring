@@ -18,10 +18,16 @@ type Server struct {
 }
 
 type Network struct {
-	Domain        string `yaml:"domain"`
-	MaxBlockDelay string `yaml:"max_block_delay"`
-	MaxTimeDelay  string `yaml:"max_time_delay"`
-	Nodes         []Node `yaml:"nodes"`
+	Domain string       `yaml:"domain"`
+	Rules  NetworkRules `yaml:"rules"`
+	Nodes  []Node       `yaml:"nodes"`
+}
+
+type NetworkRules struct {
+	MaxBlockDelay   int `yaml:"max_block_delay"`
+	MaxTimeDelaySec int `yaml:"max_time_delay_sec"`
+	RoutingNodesMin int `yaml:"routing_nodes_min"`
+	RoutingNodesMax int `yaml:"routing_nodes_max"`
 }
 
 type Node struct {
