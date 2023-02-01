@@ -71,7 +71,7 @@ func GenerateConfig() TrafikConfig {
 			if node.AllowRouting && ok {
 				httpServers = append(httpServers, Server{URL: node.Url})
 
-				if node.WsSupport {
+				if node.WsUrl != "" {
 					wsServers = append(wsServers, Server{URL: node.Url})
 				}
 			}

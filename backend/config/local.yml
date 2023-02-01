@@ -19,24 +19,23 @@ networks:
           ws_support: true
         - label: Polygon ECNG2
           url: http://65.108.201.189:36360
+          ws_url: http://65.108.201.189:36361
           public: false
           allow_routing: true
           ws_support: true
         - label: Polygon ECNG Traefik
           url: http://polygon-node.internal-fun-chegonibudj.com
+          ws_url: http://polygon-node.internal-fun-chegonibudj.com:81
           public: false
           allow_routing: true
-          ws_support: true
         - label: Polygon RPC
           url: https://polygon-rpc.com
           public: true
           allow_routing: false
-          ws_support: false
         - label: Polygon Infura
           url: https://polygon-mainnet.infura.io/v3/e444d8655de54657b719e041d951aac7
           public: true
           allow_routing: false
-          ws_support: false
   binance:
     domain: "binance-nodes.dex-arbitrage.svc.cluster.local"
     rules:
@@ -49,12 +48,10 @@ networks:
           url: http://65.108.201.189:8545
           public: false
           allow_routing: true
-          ws_support: true
         - label: Binance
           url: https://bsc-dataseed.binance.org
           public: true
           allow_routing: false
-          ws_support: false
   cronos:
     domain: "cronos-nodes.dex-arbitrage.svc.cluster.local"
     rules:
@@ -67,12 +64,10 @@ networks:
           url: http://142.132.130.196:26659
           public: false
           allow_routing: true
-          ws_support: true
         - label: Cronos
           url: https://evm.cronos.org
           public: true
           allow_routing: false
-          ws_support: false
   avalanche:
     domain: "avalanche-nodes.dex-arbitrage.svc.cluster.local"
     rules:
@@ -84,13 +79,11 @@ networks:
         - label: Avalanche ECNG
           url: http://api.axelar-node.internal-fun-chegonibudj.com:9650/ext/bc/C/rpc
           public: false
-          proxy_enabled: true
-          ws_support: true
+          allow_routing: true
         - label: Avalanche
           url: https://api.avax.network/ext/bc/C/rpc
           public: true
-          proxy_enabled: false
-          ws_support: false
+          allow_routing: false
 
 
 

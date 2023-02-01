@@ -33,9 +33,9 @@ type NetworkRules struct {
 type Node struct {
 	Name         string `yaml:"label"`
 	Url          string `yaml:"url"`
+	WsUrl        string `yaml:"ws_url"`
 	Public       bool   `yaml:"public"`
 	AllowRouting bool   `yaml:"allow_routing"`
-	WsSupport    bool   `yaml:"ws_support"`
 }
 
 var (
