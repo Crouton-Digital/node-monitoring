@@ -2,12 +2,13 @@ package server
 
 import (
 	"fmt"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"node-balancer/internal/nodemonitoring"
 	"node-balancer/internal/server/config"
 	"node-balancer/internal/trafik_config"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/sirupsen/logrus"
 )
 
 func RunServer() {

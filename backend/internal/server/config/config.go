@@ -10,6 +10,12 @@ import (
 type AppConfig struct {
 	ServerConfig   Server             `yaml:"server"`
 	NetworksConfig map[string]Network `yaml:"networks"`
+	NodeRating     NodeRating         `yaml:"node_rating"`
+}
+
+type NodeRating struct {
+	StorePoints int   `yaml:"store_points"` // keep this much previous measurements, use these points to calculate rating
+	ErrorRating int64 `yaml:"error_rating"` // assign this rating when node returns error on any request
 }
 
 type Server struct {
@@ -24,10 +30,11 @@ type Network struct {
 }
 
 type NetworkRules struct {
-	MaxBlockDelay   int `yaml:"max_block_delay"`
-	MaxTimeDelaySec int `yaml:"max_time_delay_sec"`
-	RoutingNodesMin int `yaml:"routing_nodes_min"`
-	RoutingNodesMax int `yaml:"routing_nodes_max"`
+	MaxBlockDelay     int   `yaml:"max_block_delay"`
+	MaxTimeDelaySec   int   `yaml:"max_time_delay_sec"`
+	GoodNodeMaxRating int64 `yaml:"good_node_max_rating"`
+	RoutingNodesMin   int   `yaml:"routing_nodes_min"` // minimum number of nodes in raefik-route.cfg
+	RoutingNodesMax   int   `yaml:"routing_nodes_max"` // maximum number of nodes in raefik-route.cfg
 }
 
 type Node struct {

@@ -3,13 +3,10 @@ package nodemonitoring
 import (
 	"context"
 	"fmt"
-	"math/big"
-	"node-balancer/internal/metrics"
+	"node-balancer/internal/node_rating"
 	"node-balancer/internal/server/config"
-	"os"
-	"strconv"
+	"strings"
 	"sync"
-	"text/tabwriter"
 	"time"
 
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -26,15 +23,15 @@ var (
 func Run() {
 
 	for range time.Tick(time.Millisecond * 2000) {
-		for _, s := range config.Config.NetworksConfig {
-			for _, v := range s.Nodes {
-				logrus.Info(v)
-				go printBlockNumber(v)
-			}
-		}
+		go monitorNetworks()
+		// for _, s := range config.Config.NetworksConfig {
+		// 	for _, v := range s.Nodes {
+		// 		logrus.Info(v)
+		// 	 go printBlockNumber(v)
+		// 	}
+		// }
 		fmt.Println("\n---")
 	}
-
 }
 
 func IsEnabled(network string, index int) bool {
@@ -59,67 +56,111 @@ func monitorNetworks() {
 		go monitorNetwork(network)
 	}
 }
+
+type monitoredNode struct {
+	Index         int
+	LastBlock     int64
+	LastBlockTime time.Time
+	BlockDelay    int64 // number of blocks since best last block
+	Error         error
+}
+
 func monitorNetwork(network string) {
-	// netConfig := config.Config.NetworksConfig[network]
-	// netEnabledNodes := []int{}
-	// for i, node := range netConfig.Nodes {
-	// 	err, getLastBlock, getLastBlockTime := getLastKnowBlock(node)
-	// 	if err != nil {
-	// 		// Ignore node completely
-	// 		continue
-	// 	}
+	netConfig := config.Config.NetworksConfig[network]
+	var bestlastBlock int64
+
+	monitoredNodes := make([]monitoredNode, len(netConfig.Nodes))
+	for i, node := range netConfig.Nodes {
+		lastBlock, lastBlockTime, err := getLastKnowBlock(node)
+		monitoredNodes[i] = monitoredNode{Index: i, LastBlock: lastBlock, LastBlockTime: lastBlockTime, Error: err}
+		if err != nil {
+			// Ignore node
+			continue
+		}
+		if lastBlock > bestlastBlock {
+			bestlastBlock = lastBlock
+		}
+	}
+
+	// Calculate BlockDelay
+	for i := range netConfig.Nodes {
+		monitoredNodes[i].BlockDelay = bestlastBlock - monitoredNodes[i].LastBlock
+		node_rating.AddRating(network, i, monitoredNodes[i].BlockDelay, monitoredNodes[i].Error)
+	}
+
+	// Print info for all nodes:
+	// sortedNodes := node_rating.NodesSortedByRating(network)
+	// for idx, node := range sortedNodes {
+	// 	logrus.Infof("%s %d |%s", network, idx, node.Label())
 	// }
-}
 
-func printBlockNumber(s config.Node) {
-	start := time.Now()
-	_, blockNum := getBlockNumber(s)
-	spent := time.Since(start)
+	topNodes := node_rating.NodesWithBestRatings(network)
 
-	err, getLastBlock, getLastBlockTime := getLastKnowBlock(s)
-	if err != nil {
+	topNodesStr := []string{}
+	for _, node := range topNodes {
+		topNodesStr = append(topNodesStr, node.Label())
+	}
+	logrus.Infof("%s | best block: %d | top nodes: %+v", network, bestlastBlock, strings.Join(topNodesStr, ", "))
 
-	} else {
-		metrics.OpsBlockHight.WithLabelValues("polygon", s.Name, s.Url, strconv.FormatBool(s.Public)).Set(float64(getLastBlock.Int64()))
+	netEnabledNodes := []int{}
+	for _, node := range topNodes {
+		netEnabledNodes = append(netEnabledNodes, node.Index)
 	}
 
-	w := new(tabwriter.Writer)
-	w.Init(os.Stdout, 15, 20, 0, '\t', 0)
-	defer w.Flush()
-	fmt.Fprintf(w, "\n %v\t %v\t %v\t %v\t %v\t %s ", start.Format("15:04:05.99999"), spent, blockNum, getLastBlock, getLastBlockTime.Format("15:04:05.99999"), s.Name)
+	setEnabledNodes(network, netEnabledNodes)
 }
 
-func getBlockNumber(s config.Node) (error, uint64) {
+// func printBlockNumber(s config.Node) {
+// 	start := time.Now()
+// 	_, blockNum := getBlockNumber(s)
+// 	spent := time.Since(start)
+
+// 	getLastBlock, getLastBlockTime, err := getLastKnowBlock(s)
+// 	if err != nil {
+
+// 	} else {
+// 		metrics.OpsBlockHight.WithLabelValues("polygon", s.Name, s.Url, strconv.FormatBool(s.Public)).Set(float64(getLastBlock))
+// 	}
+
+// 	w := new(tabwriter.Writer)
+// 	w.Init(os.Stdout, 15, 20, 0, '\t', 0)
+// 	defer w.Flush()
+// 	fmt.Fprintf(w, "\n %v\t %v\t %v\t %v\t %v\t %s ", start.Format("15:04:05.99999"), spent, blockNum, getLastBlock, getLastBlockTime.Format("15:04:05.99999"), s.Name)
+// }
+
+// func getBlockNumber(s config.Node) (error, uint64) {
+// 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+// 	defer cancel()
+
+// 	client, err := ethclient.DialContext(ctx, s.Url)
+// 	if err != nil {
+// 		logrus.Errorf("\n Error connect to: %v Error: %v", s.Url, err)
+// 	}
+
+// 	header, err := client.BlockNumber(ctx)
+// 	if err != nil {
+// 		logrus.Errorf("\nGet block num. Error: %v", err)
+// 		return err, 0
+// 	} else {
+// 		return nil, header
+// 	}
+// }
+
+func getLastKnowBlock(s config.Node) (int64, time.Time, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	client, err := ethclient.DialContext(ctx, s.Url)
-	if err != nil {
-		logrus.Errorf("\n Error connect to: %v Error: %v", s.Url, err)
-	}
-
 	defer cancel()
-	header, err := client.BlockNumber(ctx)
-	if err != nil {
-		logrus.Errorf("\nGet block num. Error: %v", err)
-		return err, 0
-	} else {
-		return nil, header
-	}
-}
 
-func getLastKnowBlock(s config.Node) (error, *big.Int, time.Time) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	client, err := ethclient.DialContext(ctx, s.Url)
 	if err != nil {
 		logrus.Errorf("\nError connect to: %v Error: %v", s.Url, err)
+		return 0, time.Unix(0, 0), err
 	}
 
-	defer cancel()
 	latesHeader, err := client.HeaderByNumber(ctx, nil)
 	if err != nil {
 		logrus.Errorf("\n Get last know block num. %v", err)
-		return err, nil, time.Unix(0, 0)
-	} else {
-		blockTime := time.Unix(int64(latesHeader.Time), 0)
-		return err, latesHeader.Number, blockTime
+		return 0, time.Unix(0, 0), err
 	}
+	blockTime := time.Unix(int64(latesHeader.Time), 0)
+	return latesHeader.Number.Int64(), blockTime, nil
 }
