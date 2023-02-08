@@ -5,6 +5,8 @@ import (
 	"node-balancer/internal/server/config"
 	"sort"
 	"sync"
+
+	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -45,6 +47,8 @@ func AddRating(network string, index int, blockDelayBlocks int64, err error) {
 		ratings = ratings[1:]
 	}
 	nodeRatings[network][index] = ratings
+
+	logrus.Infof("    %s.%d ratings: %v", network, index, ratings)
 }
 
 func GetRatings(network string, index int) []int64 {
