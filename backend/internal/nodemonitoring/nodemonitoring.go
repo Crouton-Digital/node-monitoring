@@ -2,7 +2,6 @@ package nodemonitoring
 
 import (
 	"context"
-	"fmt"
 	"node-balancer/internal/node_rating"
 	"node-balancer/internal/server/config"
 	"node-balancer/internal/utils"
@@ -31,7 +30,8 @@ func Run() {
 		// 	 go printBlockNumber(v)
 		// 	}
 		// }
-		fmt.Println("\n---")
+		// fmt.Println("\n---")
+		logrus.Infof("======= %v =======", time.Now().Format("2006-01-02 15:04:05"))
 	}
 }
 
@@ -71,7 +71,7 @@ func monitorNetwork(network string) {
 	var bestlastBlock int64
 
 	monitoredNodes := utils.ParallelMap(netConfig.Nodes, func(i int, node config.Node) monitoredNode {
-		logrus.Infof("    %s.%d %s - Checking last block", network, i, node.Name)
+		//logrus.Infof("    %s.%d %s - Checking last block", network, i, node.Name)
 		lastBlock, lastBlockTime, err := getLastKnowBlock(node)
 		logrus.Infof("    %s.%d %s - block %d | %v ago | %v", network, i, node.Name, lastBlock, time.Since(lastBlockTime), err)
 
@@ -160,7 +160,7 @@ func getLastKnowBlock(s config.Node) (int64, time.Time, error) {
 
 	latesHeader, err := client.HeaderByNumber(ctx, nil)
 	if err != nil {
-		logrus.Errorf("\n Get last know block num. %v", err)
+		logrus.Errorf("Get last know block num. %v", err)
 		return 0, time.Unix(0, 0), err
 	}
 	blockTime := time.Unix(int64(latesHeader.Time), 0)

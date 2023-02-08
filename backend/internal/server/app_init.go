@@ -12,6 +12,11 @@ import (
 )
 
 func RunServer() {
+	logrus.SetFormatter(&logrus.TextFormatter{
+		DisableColors: false,
+		FullTimestamp: false,
+	})
+
 	config.LoadServerConfig()
 	logrus.Info("START APP ")
 	//logrus.SetFormatter(&logrus.JSONFormatter{})
