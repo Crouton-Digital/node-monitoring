@@ -71,13 +71,12 @@ func monitorNetwork(network string) {
 
 	monitoredNodes := make([]monitoredNode, len(netConfig.Nodes))
 	for i, node := range netConfig.Nodes {
+		logrus.Infof("    %s.%d %s - Checking last block", network, i, node.Name)
 		lastBlock, lastBlockTime, err := getLastKnowBlock(node)
+		logrus.Infof("    %s.%d %s - block %d ago %v %v", network, i, node.Name, lastBlock, time.Since(lastBlockTime), err)
+
 		monitoredNodes[i] = monitoredNode{Index: i, LastBlock: lastBlock, LastBlockTime: lastBlockTime, Error: err}
-		if err != nil {
-			// Ignore node
-			continue
-		}
-		if lastBlock > bestlastBlock {
+		if err == nil && lastBlock > bestlastBlock {
 			bestlastBlock = lastBlock
 		}
 	}
