@@ -1,6 +1,7 @@
 package trafik_config
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"node-balancer/internal/nodemonitoring"
@@ -116,7 +117,9 @@ func HandleConfig(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatalf("can not marshal trafik config: %v", err)
 	}
-	w.WriteHeader(http.StatusOK)
+	w.Header().Del("Transfer-Encoding")
 	w.Header().Set("Content-Type", "text/yaml")
+	w.Header().Set("Content-Length", fmt.Sprint(len(configBytes)))
+	w.WriteHeader(http.StatusOK)
 	w.Write(configBytes)
 }
