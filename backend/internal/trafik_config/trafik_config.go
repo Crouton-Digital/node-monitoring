@@ -3,8 +3,10 @@ package trafik_config
 import (
 	"log"
 	"net/http"
+	"node-balancer/internal/nodemonitoring"
 	"node-balancer/internal/server/config"
 
+	"golang.org/x/exp/slices"
 	yaml3 "gopkg.in/yaml.v3"
 )
 
@@ -66,9 +68,11 @@ func GenerateConfig() TrafikConfig {
 	for network, netConfig := range config.Config.NetworksConfig {
 		httpServers := []Server{}
 		wsServers := []Server{}
-		for _, node := range netConfig.Nodes {
-			ok := true
-			if node.AllowRouting && ok {
+
+		enabledNodes := nodemonitoring.EnabledNodes(network)
+
+		for index, node := range netConfig.Nodes {
+			if node.AllowRouting && slices.Contains(enabledNodes, index) {
 				if node.Url != "" {
 					httpServers = append(httpServers, Server{URL: node.Url})
 				}

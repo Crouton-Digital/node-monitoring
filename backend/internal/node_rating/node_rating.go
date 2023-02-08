@@ -68,13 +68,20 @@ func GetRating(network string, index int) int64 {
 }
 
 // returns N top nodes for specific network
-func NodesWithBestRatings(network string) []NodeWithRating {
-	sortedNodes := NodesSortedByRating(network)
-	topNodes := []NodeWithRating{}
-
+func RoutableNodesWithBestRatings(network string) []NodeWithRating {
 	networkConfig := config.Config.NetworksConfig[network]
 
-	for pos, node := range sortedNodes {
+	sortedNodes := NodesSortedByRating(network)
+	// filter routable nodes only
+	sortedRoutableNodes := []NodeWithRating{}
+	for _, node := range sortedNodes {
+		if networkConfig.Nodes[node.Index].AllowRouting {
+			sortedRoutableNodes = append(sortedRoutableNodes, node)
+		}
+	}
+
+	topNodes := []NodeWithRating{}
+	for pos, node := range sortedRoutableNodes {
 		// allow no more than MAX nodes in list
 		if pos >= networkConfig.Rules.RoutingNodesMax {
 			break

@@ -73,7 +73,7 @@ func monitorNetwork(network string) {
 	monitoredNodes := utils.ParallelMap(netConfig.Nodes, func(i int, node config.Node) monitoredNode {
 		logrus.Infof("    %s.%d %s - Checking last block", network, i, node.Name)
 		lastBlock, lastBlockTime, err := getLastKnowBlock(node)
-		logrus.Infof("    %s.%d %s - block %d ago %v %v", network, i, node.Name, lastBlock, time.Since(lastBlockTime), err)
+		logrus.Infof("    %s.%d %s - block %d | %v ago | %v", network, i, node.Name, lastBlock, time.Since(lastBlockTime), err)
 
 		return monitoredNode{Index: i, LastBlock: lastBlock, LastBlockTime: lastBlockTime, Error: err}
 	})
@@ -90,19 +90,19 @@ func monitorNetwork(network string) {
 		node_rating.AddRating(network, i, monitoredNodes[i].BlockDelay, monitoredNodes[i].Error)
 	}
 
-	// Print info for all nodes:
+	//Print info for all nodes:
 	// sortedNodes := node_rating.NodesSortedByRating(network)
 	// for idx, node := range sortedNodes {
 	// 	logrus.Infof("%s %d |%s", network, idx, node.Label())
 	// }
 
-	topNodes := node_rating.NodesWithBestRatings(network)
+	topNodes := node_rating.RoutableNodesWithBestRatings(network)
 
 	topNodesStr := []string{}
 	for _, node := range topNodes {
 		topNodesStr = append(topNodesStr, node.Label())
 	}
-	logrus.Infof("%s | best block: %d | top nodes: %+v", network, bestlastBlock, strings.Join(topNodesStr, ", "))
+	logrus.Infof("%s | best block: %d | top routable nodes: %+v", network, bestlastBlock, strings.Join(topNodesStr, ", "))
 
 	netEnabledNodes := []int{}
 	for _, node := range topNodes {
