@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	nodeRatings = map[string](map[int][]int64){}
+	nodeRatings = map[string][]int64{}
 	mu          = sync.RWMutex{}
 )
 
@@ -26,6 +26,10 @@ func (n NodeWithRating) Label() string {
 	return fmt.Sprintf("%s (r%d)", node.Name, n.Rating)
 }
 
+func ratingKey(network string, index int) string {
+	return fmt.Sprintf("%s.%d", network, index)
+}
+
 func AddRating(network string, index int, blockDelayBlocks int64, err error) {
 	rating := blockDelayBlocks
 	if err != nil {
@@ -37,47 +41,42 @@ func AddRating(network string, index int, blockDelayBlocks int64, err error) {
 	defer mu.Unlock()
 	logrus.Infof("AddRating(%s.%d) Locked", network, index)
 
-	if nodeRatings[network] == nil {
-		nodeRatings[network] = map[int][]int64{}
-	}
-	ratings, ok := nodeRatings[network][index]
-	if !ok {
-		nodeRatings[network][index] = []int64{rating}
-		return
-	}
+	ratings := nodeRatings[ratingKey(network, index)]
+
 	ratings = append(ratings, rating)
 	if len(ratings) > config.Config.NodeRating.StorePoints {
 		ratings = ratings[1:]
 	}
-	nodeRatings[network][index] = ratings
+	nodeRatings[ratingKey(network, index)] = ratings
 
 	logrus.Infof("    %s.%d ratings: %v", network, index, ratings)
 }
 
-func GetRatings(network string, index int) []int64 {
-	logrus.Infof("GetRatings(%s.%d) RLock", network, index)
+func getRatings(network string, index int) []int64 {
+	logrus.Infof("getRatings(%s.%d) RLock", network, index)
 	mu.RLock()
 	defer mu.RUnlock()
 
-	logrus.Infof("GetRatings(%s.%d) RLocked", network, index)
-	return nodeRatings[network][index]
+	logrus.Infof("getRatings(%s.%d) RLocked", network, index)
+	return nodeRatings[ratingKey(network, index)]
 }
 
-func GetRating(network string, index int) int64 {
-	logrus.Infof("GetRating(%s.%d) RLock", network, index)
+func getRating(network string, index int) int64 {
+	logrus.Infof("getRating(%s.%d) RLock", network, index)
 
 	mu.RLock()
 	defer mu.RUnlock()
 
-	logrus.Infof("GetRating(%s.%d) RLocked", network, index)
+	logrus.Infof("getRating(%s.%d) RLocked", network, index)
 
-	var rating int64
-	for _, ra := range nodeRatings[network][index] {
-		rating += ra
-	}
-	if len(nodeRatings[network][index]) == 0 {
+	ratings := nodeRatings[ratingKey(network, index)]
+	if len(ratings) == 0 {
 		// downgrade nodes without any points
 		return config.Config.NodeRating.ErrorRating
+	}
+	var rating int64
+	for _, ra := range ratings {
+		rating += ra
 	}
 	return rating
 }
@@ -120,7 +119,7 @@ func NodesSortedByRating(network string) []NodeWithRating {
 
 	nodesWithRating := []NodeWithRating{}
 	for index := range nodeRatings[network] {
-		nodesWithRating = append(nodesWithRating, NodeWithRating{Index: index, Rating: GetRating(network, index), Network: network})
+		nodesWithRating = append(nodesWithRating, NodeWithRating{Index: index, Rating: getRating(network, index), Network: network})
 	}
 
 	sort.SliceStable(nodesWithRating, func(i, j int) bool {
