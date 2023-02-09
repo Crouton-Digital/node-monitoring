@@ -32,8 +32,11 @@ func AddRating(network string, index int, blockDelayBlocks int64, err error) {
 		rating = config.Config.NodeRating.ErrorRating
 	}
 
+	logrus.Infof("AddRating(%s.%d) Lock", network, index)
 	mu.Lock()
 	defer mu.Unlock()
+	logrus.Infof("AddRating(%s.%d) Locked", network, index)
+
 	if nodeRatings[network] == nil {
 		nodeRatings[network] = map[int][]int64{}
 	}
@@ -52,14 +55,22 @@ func AddRating(network string, index int, blockDelayBlocks int64, err error) {
 }
 
 func GetRatings(network string, index int) []int64 {
+	logrus.Infof("GetRatings(%s.%d) RLock", network, index)
 	mu.RLock()
 	defer mu.RUnlock()
+
+	logrus.Infof("GetRatings(%s.%d) RLocked", network, index)
 	return nodeRatings[network][index]
 }
 
 func GetRating(network string, index int) int64 {
+	logrus.Infof("GetRating(%s.%d) RLock", network, index)
+
 	mu.RLock()
 	defer mu.RUnlock()
+
+	logrus.Infof("GetRating(%s.%d) RLocked", network, index)
+
 	var rating int64
 	for _, ra := range nodeRatings[network][index] {
 		rating += ra
