@@ -114,12 +114,11 @@ func RoutableNodesWithBestRatings(network string) []NodeWithRating {
 }
 
 func NodesSortedByRating(network string) []NodeWithRating {
-	mu.RLock()
-	defer mu.RUnlock()
-
 	nodesWithRating := []NodeWithRating{}
-	for index := range nodeRatings[network] {
-		nodesWithRating = append(nodesWithRating, NodeWithRating{Index: index, Rating: getRating(network, index), Network: network})
+
+	for index := range config.Config.NetworksConfig[network].Nodes {
+		rating := getRating(network, index)
+		nodesWithRating = append(nodesWithRating, NodeWithRating{Index: index, Rating: rating, Network: network})
 	}
 
 	sort.SliceStable(nodesWithRating, func(i, j int) bool {
