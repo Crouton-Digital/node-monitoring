@@ -35,7 +35,7 @@ func Run() {
 }
 
 func startScheduler(network string) {
-	WorkerChannels[network] = make(chan struct{})
+	WorkerChannels[network] = make(chan struct{}, 1)
 	go worker(network, WorkerChannels[network])
 }
 
