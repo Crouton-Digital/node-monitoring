@@ -16,22 +16,32 @@ import (
 
 var (
 	// stores indexes, e.g. for polygon enabled nodes are #0 and #3
-	enabledNodes = map[string][]int{}
-	mu           = sync.RWMutex{}
+	enabledNodes   = map[string][]int{}
+	mu             = sync.RWMutex{}
+	WorkerChannels = make(map[string](chan struct{}))
 )
 
 func Run() {
+	for network := range config.Config.NetworksConfig {
+		startScheduler(network)
+	}
 
 	for range time.Tick(time.Millisecond * 2000) {
-		go monitorNetworks()
-		// for _, s := range config.Config.NetworksConfig {
-		// 	for _, v := range s.Nodes {
-		// 		logrus.Info(v)
-		// 	 go printBlockNumber(v)
-		// 	}
-		// }
-		// fmt.Println("\n---")
 		logrus.Infof("======= %v =======", time.Now().Format("2006-01-02 15:04:05"))
+		for network := range config.Config.NetworksConfig {
+			WorkerChannels[network] <- struct{}{}
+		}
+	}
+}
+
+func startScheduler(network string) {
+	WorkerChannels[network] = make(chan struct{})
+	go worker(network, WorkerChannels[network])
+}
+
+func worker(network string, ch <-chan struct{}) {
+	for range ch {
+		monitorNetwork(network)
 	}
 }
 
@@ -50,12 +60,6 @@ func setEnabledNodes(network string, nodeIndexes []int) {
 	mu.Lock()
 	defer mu.Unlock()
 	enabledNodes[network] = nodeIndexes
-}
-
-func monitorNetworks() {
-	for network := range config.Config.NetworksConfig {
-		go monitorNetwork(network)
-	}
 }
 
 type monitoredNode struct {
