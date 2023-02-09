@@ -74,13 +74,16 @@ func monitorNetwork(network string) {
 	netConfig := config.Config.NetworksConfig[network]
 	var bestlastBlock int64
 
+	logrus.Infof("%s pmap start", network)
 	monitoredNodes := utils.ParallelMap(netConfig.Nodes, func(i int, node config.Node) monitoredNode {
 		//logrus.Infof("    %s.%d %s - Checking last block", network, i, node.Name)
+		logrus.Infof("    %s.%d %s - start", network, i, node.Name)
 		lastBlock, lastBlockTime, err := getLastKnowBlock(node)
 		logrus.Infof("    %s.%d %s - block %d | %v ago | %v", network, i, node.Name, lastBlock, time.Since(lastBlockTime), err)
 
 		return monitoredNode{Index: i, LastBlock: lastBlock, LastBlockTime: lastBlockTime, Error: err}
 	})
+	logrus.Infof("%s pmap end", network)
 
 	for _, mnode := range monitoredNodes {
 		if mnode.Error == nil && mnode.LastBlock > bestlastBlock {
@@ -113,7 +116,9 @@ func monitorNetwork(network string) {
 		netEnabledNodes = append(netEnabledNodes, node.Index)
 	}
 
+	logrus.Infof("setEnabledNodes(%s) start", network)
 	setEnabledNodes(network, netEnabledNodes)
+	logrus.Infof("setEnabledNodes(%s) end", network)
 }
 
 // func printBlockNumber(s config.Node) {
