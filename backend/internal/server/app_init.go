@@ -32,7 +32,8 @@ func StartRouter() {
 
 	logrus.Infof("Serving HTTP on port %v", config.Config.ServerConfig.HttpPort)
 
-	http.ListenAndServe(":"+config.Config.ServerConfig.HttpPort, nil)
+	err := http.ListenAndServe(":"+config.Config.ServerConfig.HttpPort, nil)
+	logrus.Fatalf("Serving HTTP failed: %v", err)
 }
 
 func handleHealthRequest(w http.ResponseWriter, r *http.Request) {

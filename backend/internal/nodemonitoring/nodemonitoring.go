@@ -2,9 +2,12 @@ package nodemonitoring
 
 import (
 	"context"
+	"node-balancer/internal/metrics"
 	"node-balancer/internal/node_rating"
 	"node-balancer/internal/server/config"
 	"node-balancer/internal/utils"
+	"regexp"
+
 	"strings"
 	"sync"
 	"time"
@@ -19,6 +22,8 @@ var (
 	enabledNodes   = map[string][]int{}
 	mu             = sync.RWMutex{}
 	WorkerChannels = make(map[string](chan struct{}))
+
+	errStartWithCode = regexp.MustCompile(`^([0-9]+)`)
 )
 
 func Run() {
@@ -78,7 +83,15 @@ func monitorNetwork(network string) {
 	monitoredNodes := utils.ParallelMap(netConfig.Nodes, func(i int, node config.Node) monitoredNode {
 		//logrus.Infof("    %s.%d %s - Checking last block", network, i, node.Name)
 		logrus.Infof("    %s.%d %s - start", network, i, node.Name)
+		start := time.Now()
 		lastBlock, lastBlockTime, err := getLastKnowBlock(node)
+
+		metrics.ResponseTime(network, node.Name, errorToShort(err), start)
+		if err == nil {
+			metrics.BlockNum(network, node.Name, lastBlock)
+			metrics.BlockTimeAgo(network, node.Name, lastBlockTime)
+		}
+
 		logrus.Infof("    %s.%d %s - block %d | %v ago | %v", network, i, node.Name, lastBlock, time.Since(lastBlockTime), err)
 
 		return monitoredNode{Index: i, LastBlock: lastBlock, LastBlockTime: lastBlockTime, Error: err}
@@ -92,9 +105,11 @@ func monitorNetwork(network string) {
 	}
 
 	// Calculate BlockDelay
-	for i := range netConfig.Nodes {
+	for i, node := range netConfig.Nodes {
 		monitoredNodes[i].BlockDelay = bestlastBlock - monitoredNodes[i].LastBlock
 		node_rating.AddRating(network, i, monitoredNodes[i].BlockDelay, monitoredNodes[i].Error)
+
+		metrics.BlockDelayFromBest(network, node.Name, monitoredNodes[i].BlockDelay)
 	}
 
 	//Print info for all nodes:
@@ -174,4 +189,32 @@ func getLastKnowBlock(s config.Node) (int64, time.Time, error) {
 	}
 	blockTime := time.Unix(int64(latesHeader.Time), 0)
 	return latesHeader.Number.Int64(), blockTime, nil
+}
+
+func errorToShort(err error) string {
+	if err == nil {
+		return ""
+	}
+	codeStr := errStartWithCode.FindString(err.Error())
+	if codeStr != "" {
+		return codeStr
+	}
+
+	errDowncase := strings.ToLower(err.Error())
+
+	if strings.Contains(errDowncase, "not found") {
+		return "not found"
+	}
+	if strings.Contains(errDowncase, "no such host") {
+		return "no host"
+	}
+	if strings.Contains(errDowncase, "context deadline") {
+		return "timeout"
+	}
+
+	if len(err.Error()) > 20 {
+		return err.Error()[0:20]
+	}
+
+	return err.Error()
 }
