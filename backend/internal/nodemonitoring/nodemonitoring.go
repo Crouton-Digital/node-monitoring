@@ -131,9 +131,12 @@ func monitorNetwork(network string) {
 		netEnabledNodes = append(netEnabledNodes, node.Index)
 	}
 
-	logrus.Infof("setEnabledNodes(%s) start", network)
 	setEnabledNodes(network, netEnabledNodes)
-	logrus.Infof("setEnabledNodes(%s) end", network)
+
+	for i, node := range netConfig.Nodes {
+		metrics.InConfig(network, node.Name, IsEnabled(network, i))
+	}
+
 }
 
 // func printBlockNumber(s config.Node) {
@@ -212,8 +215,8 @@ func errorToShort(err error) string {
 		return "timeout"
 	}
 
-	if len(err.Error()) > 20 {
-		return err.Error()[0:20]
+	if len(err.Error()) > metrics.ErrorTruncateSymbols {
+		return err.Error()[0:metrics.ErrorTruncateSymbols]
 	}
 
 	return err.Error()
