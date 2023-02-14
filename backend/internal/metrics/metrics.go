@@ -27,7 +27,7 @@ var (
 			Name: "node_balancer_response_status",
 			Help: "",
 		},
-		[]string{"network", "node_name", "error"},
+		[]string{"network", "node_name", "status"},
 	)
 
 	blockNum = prometheus.NewGaugeVec(prometheus.GaugeOpts{
@@ -69,10 +69,12 @@ func init() {
 
 func ResponseTime(network, nodeName, err string, start time.Time) {
 	dur := time.Since(start)
+	status := err
 	if err == "" {
 		responseTime.WithLabelValues(network, nodeName).Observe(dur.Seconds())
+		status = "OK"
 	}
-	responseStatus.WithLabelValues(network, nodeName, err).Inc()
+	responseStatus.WithLabelValues(network, nodeName, status).Inc()
 }
 
 func BlockNum(network, nodeName string, blockNumber int64) {
