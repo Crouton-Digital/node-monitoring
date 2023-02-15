@@ -87,10 +87,8 @@ func monitorNetwork(network string) {
 		lastBlock, lastBlockTime, err := getLastKnowBlock(node)
 
 		metrics.ResponseTime(network, node.Name, errorToShort(err), start)
-		if err == nil {
-			metrics.BlockNum(network, node.Name, lastBlock)
-			metrics.BlockTimeAgo(network, node.Name, lastBlockTime)
-		}
+		metrics.BlockNum(network, node.Name, lastBlock)
+		metrics.BlockTimeAgo(network, node.Name, lastBlockTime)
 
 		logrus.Infof("    %s.%d %s - block %d | %v ago | %v", network, i, node.Name, lastBlock, time.Since(lastBlockTime), err)
 
