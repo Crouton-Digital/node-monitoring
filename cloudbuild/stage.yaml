@@ -83,6 +83,6 @@ images: ["eu.gcr.io/$PROJECT_ID/${_SERVICE}:$TAG_NAME", "eu.gcr.io/$PROJECT_ID/$
 
 substitutions:
   _SERVICE: node-balancer
-  _REPO: git@bitbucket.org:am-bitbucket/infra-test.git
+  _REPO: git@bitbucket.org:am-bitbucket/infra-staging.git
   _DEPLOYMENT_PATH: infra-staging/deployment/node-balancer
   _DEPLOYMENT_TOPIC: node-balancer-test-deployment
