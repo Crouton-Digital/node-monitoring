@@ -1,0 +1,88 @@
+steps:
+  - name: "gcr.io/cloud-builders/docker"
+    id: Get previous version
+    entrypoint: "bash"
+    args: ["-c", "docker pull eu.gcr.io/$PROJECT_ID/${_SERVICE}:latest || exit 0"]
+  - name: "gcr.io/cloud-builders/gcloud"
+    id: Get Private Key
+    args:
+      - kms
+      - decrypt
+      - --ciphertext-file=cloudbuild/version1key.enc
+      - --plaintext-file=/root/.ssh/id_rsa
+      - --location=global
+      - --keyring=version1-keyring
+      - --key=bitbucket-key
+    volumes:
+      - name: "ssh"
+        path: /root/.ssh
+  - name: "gcr.io/cloud-builders/git"
+    id: Configure Git SSH
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        chmod 600 /root/.ssh/id_rsa
+        cat <<EOF >/root/.ssh/config
+        Hostname bitbucket.org
+        IdentityFile /root/.ssh/id_rsa
+        EOF
+        cp cloudbuild/known_hosts /root/.ssh/known_hosts
+        mkdir -p /workspace/ssh
+        cp -r /root/.ssh/* /workspace/ssh
+    volumes:
+      - name: "ssh"
+        path: /root/.ssh
+  - name: "gcr.io/cloud-builders/docker"
+    id: Build
+    args:
+      [
+        "build",
+        "-f",
+        "Dockerfile",
+        "-t",
+        "eu.gcr.io/$PROJECT_ID/${_SERVICE}:$TAG_NAME",
+        "-t",
+        "eu.gcr.io/$PROJECT_ID/${_SERVICE}:latest",
+        "--cache-from",
+        "eu.gcr.io/$PROJECT_ID/${_SERVICE}:latest",
+        ".",
+      ]
+    volumes:
+      - name: "ssh"
+        path: /root/.ssh
+  - name: "gcr.io/cloud-builders/git"
+    id: Update image version
+    entrypoint: bash
+    args:
+      - "-c"
+      - |
+        git config --global user.email "f6b9g8wdbqehaq@estchange.io"
+        git config --global user.name "Google Cloud Build"
+        git clone --depth 1 ${_REPO}
+        cd ${_DEPLOYMENT_PATH}
+        chmod +x /workspace/cloudbuild/change_version.bash
+        /workspace/cloudbuild/change_version.bash $TAG_NAME
+        git add vars.tf
+        git commit -m "Updating ${_SERVICE} Version to '$TAG_NAME' based on commit $SHORT_SHA"
+        git push
+    volumes:
+      - name: "ssh"
+        path: /root/.ssh
+  - name: gcr.io/cloud-builders/gcloud
+    args:
+      - '-c'
+      - |
+        ./cloudbuild/runTrigger.sh Deploy-Infra-Stage-Env ${_DEPLOYMENT_PATH} master
+    entrypoint: bash
+    volumes:
+      - name: 'ssh'
+        path: /root/.ssh
+
+images: ["eu.gcr.io/$PROJECT_ID/${_SERVICE}:$TAG_NAME", "eu.gcr.io/$PROJECT_ID/${_SERVICE}:latest"]
+
+substitutions:
+  _SERVICE: node-balancer
+  _REPO: git@bitbucket.org:am-bitbucket/infra-test.git
+  _DEPLOYMENT_PATH: infra-staging/deployment/node-balancer
+  _DEPLOYMENT_TOPIC: node-balancer-test-deployment
