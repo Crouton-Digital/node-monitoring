@@ -1,10 +1,9 @@
 package config
 
 import (
-	"os"
-
 	"github.com/sirupsen/logrus"
 	yaml3 "gopkg.in/yaml.v3"
+	"os"
 )
 
 type AppConfig struct {
